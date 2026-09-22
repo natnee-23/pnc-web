@@ -75,17 +75,24 @@ export default function App() {
     return saved !== null ? JSON.parse(saved) : false;
   });
 
+  // Visitor Counter
   const [userCount, setUserCount] = useState(0);
-  const [isLoadingCounter, setIsLoadingCounter] = useState(true);
 
-  // Visitor Counter: นับใหม่ทุกครั้งที่เปิดเว็บหรือ Refresh
-  // ลบ Session เก่าออกเพื่อบังคับใหักระตุ้นนับใหม่ทุกครั้งที่รีเฟรช/เปิดใหม่
   useEffect(() => {
-    localStorage.removeItem('pnc_has_visited');
-    const count = parseInt(localStorage.getItem('pnc_visitor_count') || '100', 10);
-    const newCount = count + 1;
-    localStorage.setItem('pnc_visitor_count', newCount.toString());
-    setVisitorCount(newCount);
+    const savedCount = localStorage.getItem('pnc_visitor_count');
+
+    const currentCount = savedCount
+      ? parseInt(savedCount, 10)
+      : 100;
+
+    const newCount = currentCount + 1;
+
+    localStorage.setItem(
+      'pnc_visitor_count',
+      newCount.toString()
+    );
+
+    setUserCount(newCount);
   }, []);
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -381,10 +388,11 @@ export default function App() {
             <div className="flex items-center gap-2">
               <Users size={15} className="text-indigo-600" />
               <span>
-                ผู้ใช้งานทั้งหมด: {' '}
+                ผู้ใช้งานทั้งหมด:{' '}
                 <strong className="text-slate-900 font-extrabold">
-                  {isLoadingCounter ? 'กำลังโหลด...' : userCount.toLocaleString()}
-                </strong> คน
+                  {userCount.toLocaleString()}
+                </strong>{' '}
+                คน
               </span>
             </div>
             {!isPremium ? (
