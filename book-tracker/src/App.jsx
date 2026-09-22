@@ -79,20 +79,12 @@ export default function App() {
   const [isLoadingCounter, setIsLoadingCounter] = useState(true);
 
   // Visitor Counter: นับใหม่ทุกครั้งที่เปิดเว็บหรือ Refresh
+  // ลบ Session เก่าออกเพื่อบังคับใหักระตุ้นนับใหม่ทุกครั้งที่รีเฟรช/เปิดใหม่
   useEffect(() => {
-    const savedCount = localStorage.getItem('pnc_visitor_count');
-
-    const currentCount = savedCount
-      ? parseInt(savedCount, 10)
-      : 100;
-
-    const newCount = currentCount + 1;
-
-    localStorage.setItem(
-      'pnc_visitor_count',
-      newCount.toString()
-    );
-
+    localStorage.removeItem('pnc_has_visited');
+    const count = parseInt(localStorage.getItem('pnc_visitor_count') || '100', 10);
+    const newCount = count + 1;
+    localStorage.setItem('pnc_visitor_count', newCount.toString());
     setVisitorCount(newCount);
   }, []);
 
