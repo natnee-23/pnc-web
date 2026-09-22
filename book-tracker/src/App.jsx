@@ -761,7 +761,7 @@ export default function App() {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition ${activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
         >
           <LayoutDashboard size={16} />
-          <span>แดชบอร์ด</span>
+          <span>หน้าหลัก</span>
         </button>
 
         <button 
