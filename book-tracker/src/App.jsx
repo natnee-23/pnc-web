@@ -76,15 +76,22 @@ export default function App() {
   });
 
   // Visitor Counter
-  const [userCount, setUserCount] = useState(0);
+const [visitorCount, setVisitorCount] = useState(() => {
+  return parseInt(
+    localStorage.getItem('pnc_visitor_count') || '0',
+    10
+  );
+});
 
-  useEffect(() => {
-    const savedCount = localStorage.getItem('pnc_visitor_count');
+useEffect(() => {
+  const hasVisited = localStorage.getItem('pnc_has_visited');
+  const currentCount = parseInt(
+    localStorage.getItem('pnc_visitor_count') || '0',
+    10
+  );
 
-    const currentCount = savedCount
-      ? parseInt(savedCount, 10)
-      : 100;
-
+  // ถ้าเป็นการเข้าเว็บครั้งแรกของ Browser นี้
+  if (!hasVisited) {
     const newCount = currentCount + 1;
 
     localStorage.setItem(
@@ -92,8 +99,17 @@ export default function App() {
       newCount.toString()
     );
 
-    setUserCount(newCount);
-  }, []);
+    localStorage.setItem(
+      'pnc_has_visited',
+      'true'
+    );
+
+    setVisitorCount(newCount);
+  } else {
+    // ถ้าเคยเข้าแล้ว ไม่ต้องนับเพิ่ม
+    setVisitorCount(currentCount);
+  }
+}, []);
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [quoteIndex, setQuoteIndex] = useState(0);
@@ -390,7 +406,7 @@ export default function App() {
               <span>
                 ผู้ใช้งานทั้งหมด:{' '}
                 <strong className="text-slate-900 font-extrabold">
-                  {userCount.toLocaleString()}
+                  {visitorCount.toLocaleString()}
                 </strong>{' '}
                 คน
               </span>
