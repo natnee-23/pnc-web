@@ -78,25 +78,22 @@ export default function App() {
   const [userCount, setUserCount] = useState(0);
   const [isLoadingCounter, setIsLoadingCounter] = useState(true);
 
+  // Visitor Counter: นับใหม่ทุกครั้งที่เปิดเว็บหรือ Refresh
   useEffect(() => {
-    const hitCounter = async () => {
-      try {
-        const res = await fetch('https://api.counterapi.dev/v1/pnc_study_planner_app/visits/up');
-        const data = await res.json();
-        if (data && typeof data.count === 'number') {
-          setUserCount(data.count);
-        } else {
-          setUserCount(data.value || 0);
-        }
-      } catch (err) {
-        console.error("ไม่สามารถเชื่อมต่อ Counter API ได้:", err);
-        setUserCount(1);
-      } fontFinally: {
-        setIsLoadingCounter(false);
-      }
-    };
+    const savedCount = localStorage.getItem('pnc_visitor_count');
 
-    hitCounter();
+    const currentCount = savedCount
+      ? parseInt(savedCount, 10)
+      : 100;
+
+    const newCount = currentCount + 1;
+
+    localStorage.setItem(
+      'pnc_visitor_count',
+      newCount.toString()
+    );
+
+    setVisitorCount(newCount);
   }, []);
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -755,30 +752,46 @@ export default function App() {
       </div>
 
       {/* NAVBAR BOTTOM */}
-      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-full p-1.5 shadow-xl flex items-center gap-1 z-40">
-        <button 
-          onClick={() => setActiveTab('dashboard')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition ${activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
-        >
-          <LayoutDashboard size={16} />
-          <span>หน้าหลัก</span>
-        </button>
+      <nav className="fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg z-40">
+        <div className="max-w-3xl mx-auto w-full flex justify-around items-center px-2 py-2">
+          
+          <button 
+            onClick={() => setActiveTab('dashboard')}
+            className={`flex-1 max-w-[120px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3 py-2 rounded-xl text-xs font-bold transition ${
+              activeTab === 'dashboard' 
+                ? 'bg-indigo-600 text-white shadow-md' 
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <LayoutDashboard size={16} />
+            <span>หน้าหลัก</span>
+          </button>
 
-        <button 
-          onClick={() => { resetForm(); setActiveTab('add'); }}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition ${activeTab === 'add' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
-        >
-          <Plus size={16} />
-          <span>เพิ่มวิชา</span>
-        </button>
+          <button 
+            onClick={() => { resetForm(); setActiveTab('add'); }}
+            className={`flex-1 max-w-[120px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3 py-2 rounded-xl text-xs font-bold transition ${
+              activeTab === 'add' 
+                ? 'bg-indigo-600 text-white shadow-md' 
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Plus size={16} />
+            <span>เพิ่มวิชา</span>
+          </button>
 
-        <button 
-          onClick={() => setActiveTab('schedule')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition ${activeTab === 'schedule' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
-        >
-          <CalendarDays size={16} />
-          <span>ตารางอ่าน</span>
-        </button>
+          <button 
+            onClick={() => setActiveTab('schedule')}
+            className={`flex-1 max-w-[120px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3 py-2 rounded-xl text-xs font-bold transition ${
+              activeTab === 'schedule' 
+                ? 'bg-indigo-600 text-white shadow-md' 
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <CalendarDays size={16} />
+            <span>ตารางอ่าน</span>
+          </button>
+
+        </div>
       </nav>
 
       {/* MODAL 1: BREAK QUOTE */}
@@ -892,18 +905,12 @@ export default function App() {
             <div className="space-y-2">
               <button 
                 onClick={() => {
-                  setIsPremium(true);
+                  setIsPremium(false);
                   setShowPremiumModal(false);
                 }}
-                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold rounded-2xl text-xs shadow-md transition"
+                className="w-full py-2.5 bg-rose-50 text-rose-600 font-bold rounded-2xl text-xs hover:bg-rose-100 transition border border-rose-100"
               >
-                เปิดใช้งานฟรี (ทดลองระบบ)
-              </button>
-              <button 
-                onClick={() => setShowPremiumModal(false)}
-                className="w-full py-2.5 bg-slate-100 text-slate-600 font-bold rounded-2xl text-xs hover:bg-slate-200 transition"
-              >
-                ไว้ทีหลัง
+                ยกเลิกสถานะ Premium
               </button>
             </div>
           </div>
