@@ -43,7 +43,6 @@ const getFutureDateString = (daysToAdd) => {
 export default function StudyPlannerApp() {
   const [activeTab, setActiveTab] = useState('dashboard');
   
-  // โหลดค่าจาก localStorage (รักษาข้อมูลเดิมไว้เสมอ)
   const [subjects, setSubjects] = useState(() => {
     const saved = localStorage.getItem('user_subjects');
     return saved ? JSON.parse(saved) : [];
@@ -102,7 +101,6 @@ export default function StudyPlannerApp() {
     });
   };
 
-  // คำนวณตารางใหม่โดยใช้วิชาและสถิติเดิม
   const recalculateSchedule = (currentSubjects) => {
     const todayStr = getTodayString();
     const today = new Date(todayStr);
@@ -121,7 +119,7 @@ export default function StudyPlannerApp() {
       const daysLeftB = calculateDaysLeft(b.examDate);
       if (daysLeftA !== daysLeftB) return daysLeftA - daysLeftB;
       
-      const diffWeight = { '🔴ยาก': 3, '🟡ปานกลาง': 2, '🟢ง่าย': 1 };
+      const diffWeight = { 'ยาก': 3, 'ปานกลาง': 2, 'ง่าย': 1 };
       return diffWeight[b.difficulty] - diffWeight[a.difficulty];
     });
 
@@ -178,7 +176,6 @@ export default function StudyPlannerApp() {
     }));
   };
 
-  // ฟังก์ชันเพิ่มหัวข้ออ่านเกินล่วงหน้า โดยไม่ต้องรีเซ็ตตาราง
   const handleReadExtra = (subjectId) => {
     setSubjects(prev => prev.map(s => {
       if (s.id === subjectId) {
@@ -195,7 +192,6 @@ export default function StudyPlannerApp() {
 
     let updatedSubjects = [];
     if (editingSubjectId) {
-      // แก้ไขวิชาเดิม (คง completedTopics เดิมไว้)
       updatedSubjects = subjects.map(s => s.id === editingSubjectId ? {
         ...s,
         name: formName,
@@ -205,7 +201,6 @@ export default function StudyPlannerApp() {
       } : s);
       setEditingSubjectId(null);
     } else {
-      // เพิ่มวิชาใหม่ (สะสมเข้ากับวิชาเดิมที่มีอยู่)
       const newSub = {
         id: Date.now().toString(),
         name: formName,
@@ -306,7 +301,7 @@ export default function StudyPlannerApp() {
     .sort((a, b) => calculateDaysLeft(a.examDate) - calculateDaysLeft(b.examDate));
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 pb-20 font-sans antialiased">
+    <div className="min-h-screen bg-slate-50 text-slate-800 pb-24 font-sans antialiased">
       {/* Header */}
       <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -322,7 +317,7 @@ export default function StudyPlannerApp() {
 
           <button 
             onClick={() => setShowDonateModal(true)}
-            className="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
+            className="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
           >
             <Heart size={14} className="text-amber-600 fill-amber-500" />
             <span>สนับสนุน</span>
@@ -330,7 +325,7 @@ export default function StudyPlannerApp() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 pt-5">
+      <main className="max-w-4xl mx-auto px-4 pt-4">
         {/* หน้าหลัก (Dashboard) */}
         {activeTab === 'dashboard' && (
           <div className="space-y-5 animate-in fade-in duration-200">
@@ -505,7 +500,7 @@ export default function StudyPlannerApp() {
               <div className="text-center py-12 bg-white rounded-3xl border border-slate-200/80 p-6 space-y-3 shadow-sm">
                 <Clock4 size={32} className="mx-auto text-slate-300" />
                 <h3 className="text-sm font-bold text-slate-800">ไม่มีตารางอ่านหนังสือในตอนนี้</h3>
-                <p className="text-xs text-slate-400">ลองเพิ่มวิชาเรียนใหม่</p>
+                <p className="text-xs text-slate-400">ลองเพิ่มวิชาเรียนใหม่เพื่อรับตารางอ่านหนังสืออัจฉริยะ</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -578,7 +573,6 @@ export default function StudyPlannerApp() {
                               </div>
                             </div>
 
-                            {/* ตัวเลือกพิเศษเมื่ออ่านเสร็จของวันนี้แล้วอยากอ่านเพิ่ม */}
                             {isDone && dayPlan.date === getTodayString() && subjectData && subjectData.completedTopics < subjectData.totalTopics && (
                               <div className="pt-2 border-t border-emerald-100 flex items-center justify-between">
                                 <span className="text-[10px] font-bold text-emerald-700">
@@ -604,63 +598,63 @@ export default function StudyPlannerApp() {
           </div>
         )}
 
-        {/* หน้าเพิ่มวิชาใหม่ (Add Subject) */}
+        {/* หน้าเพิ่มวิชาใหม่ (Add Subject) - ปรับปรุงสไตล์เพื่อแก้ปัญหามือถือล้นขอบ */}
         {activeTab === 'add' && (
-          <div className="bg-white rounded-3xl p-5 md:p-6 border border-slate-200/80 shadow-sm space-y-4 animate-in fade-in max-w-xl mx-auto">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-3.5 animate-in fade-in max-w-xl mx-auto mb-10">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
               <h2 className="text-sm font-black text-slate-800">
                 {editingSubjectId ? 'แก้ไขข้อมูลวิชา' : 'เพิ่มวิชาใหม่เข้าตาราง'}
               </h2>
             </div>
 
-            <form onSubmit={handleSaveSubject} className="space-y-4">
+            <form onSubmit={handleSaveSubject} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">ชื่อวิชา</label>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">ชื่อวิชา</label>
                 <input 
                   type="text"
                   required
                   value={formName}
                   onChange={e => setFormName(e.target.value)}
                   placeholder="เช่น แคลคูลัส 1"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs outline-none focus:border-indigo-500 font-bold"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-500 font-bold text-slate-800"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">ระดับความยาก</label>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">ระดับความยาก</label>
                 <select 
                   value={formDifficulty}
                   onChange={e => setFormDifficulty(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs outline-none font-bold text-slate-700"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none font-bold text-slate-700"
                 >
-                  <option value="🟢ง่าย">🟢ง่าย</option>
-                  <option value="🟡ปานกลาง">🟡ปานกลาง</option>
-                  <option value="🔴ยาก">🔴ยาก</option>
+                  <option value="ง่าย">🟢 ง่าย</option>
+                  <option value="ปานกลาง">🟡 ปานกลาง</option>
+                  <option value="ยาก">🔴 ยาก</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">วันสอบ (ปฏิทิน)</label>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">วันสอบ (ปฏิทิน)</label>
                 <input 
                   type="date"
                   required
                   min={getTodayString()}
                   value={formExamDate}
                   onChange={e => setFormExamDate(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs outline-none font-bold text-slate-700"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none font-bold text-slate-700"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">จำนวนหัวข้อทั้งหมดที่จะอ่าน</label>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">จำนวนหัวข้อทั้งหมดที่จะอ่าน</label>
                 <input 
                   type="number"
                   min={1}
-                  max={100}
+                  max={20}
                   required
                   value={formTotalTopics}
                   onChange={e => setFormTotalTopics(Number(e.target.value))}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs outline-none font-bold text-slate-700"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none font-bold text-slate-700"
                 />
               </div>
 
@@ -767,15 +761,14 @@ export default function StudyPlannerApp() {
             </p>
 
             <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">PromptPay</span>
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">-ปภังกร คาการุณ</span>
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">PromptPay - ปภังกร คงการุณ</span>
               <p className="text-sm font-black text-indigo-600 tracking-wider">0659690021</p>
             </div>
 
             <button 
               onClick={() => {
                 navigator.clipboard.writeText('0659690021');
-                alert('คัดลอกหมายเลขแล้ว');
+                alert('คัดลอกหมายเลขแล้ว!');
               }}
               className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition"
             >
@@ -785,7 +778,7 @@ export default function StudyPlannerApp() {
         </div>
       )}
 
-      {/* Taskbar ด้านล่าง - หน้าแรกอยู่ซ้าย | เพิ่มวิชาอยู่กลาง | ตารางอ่านอยู่ขวา */}
+      {/* Taskbar ด้านล่าง */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 shadow-lg">
         <div className="max-w-4xl mx-auto flex items-center justify-around h-16 px-2">
           {/* ซ้าย: หน้าแรก */}
