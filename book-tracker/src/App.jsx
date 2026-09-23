@@ -1,576 +1,475 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BookOpen, Sparkles, RefreshCw, Heart, 
-  Target, Layers, Plus, Clock, Trash2, Calendar, Edit3,
-  LayoutDashboard, CalendarDays, CheckCircle2, Shuffle, Lightbulb,
-  Crown, Users, ChevronRight, Check, AlertCircle, X
+  Calendar, 
+  Shuffle, 
+  CheckCircle2, 
+  X, 
+  Heart, 
+  LayoutDashboard, 
+  CalendarDays, 
+  Plus, 
+  BookOpen, 
+  Sparkles, 
+  Trash2, 
+  Edit3, 
+  Coffee, 
+  AlertTriangle, 
+  Copy, 
+  Clock,
+  Clock4
 } from 'lucide-react';
 
-const HEALING_QUOTES = [
-  "การพักผ่อนไม่ใช่เรื่องผิด วันนี้เซฟพลังใจ แล้วค่อยไปต่อพรุ่งนี้นะ ✨",
-  "เหนื่อยได้ แต่อย่าเท 😮‍💨",
-  "🌙 เหนื่อยตอนนี้ ดีกว่าเสียดายทีหลัง",
-  "🧠 สมองยังไหว ไปต่ออีกนิด",
-  "📚 อ่านนิดเดียว ยังดีกว่าไม่อ่าน",
-  "🎯 คะแนนไม่ได้มาเพราะดวงนะ",
-  "ไม่ว่าจะเจอเรื่องแย่แค่ไหนมา เก่งมากแล้วนะที่ผ่านมันมาได้ 🤍",
-  "ก้าวทีละนิด ก็เข้าใกล้ความสำเร็จไปอีกขั้น ไม่ต้องรีบแข่งกับใครเลย 🌟",
-  "📖 เปิดหนังสือ = ชนะไปหนึ่งขั้น 🏆",
-  "ถ้าเหนื่อยก็พักสักหน่อย สมองและหัวใจของคุณต้องการการดูแลนะ 🔋",
-  "วันนี้ทำได้แค่นี้ก็ไม่เป็นไรเลย คุณเต็มที่ในแบบของคุณแล้ว 👍",
-  "อย่าลืมใจดีกับตัวเองให้มากๆ นะ วันนี้คุณเก่งที่สุดแล้ว ✨",
-  "📚 อ่านก่อน เดี๋ยวเก่งเอง ✨",
-  "💪 วันนี้ไม่เก่งไม่เป็นไร แต่อย่าหยุด",
+const ENCOURAGEMENT_QUOTES = [
+  "ก้าวเล็ก ๆ ในวันนี้ คือความสำเร็จที่ยิ่งใหญ่ในวันข้างหน้า ✌️",
+  "อย่าเพิ่งท้อนะ! สมองของคุณกำลังเติบโตและจดจำสิ่งดีๆ อยู่",
+  "ความพยายามไม่เคยทำร้ายคนตั้งใจ สู้เขา! 🔥",
+  "พักสายตาสักแป๊บ แล้วกลับมาลุยต่อ คุณทำได้แน่นอน!",
+  "การอ่านหนังสือวันละนิด ดีกว่าการอัดอ่านคืนเดียวนะ",
+  "คุณใกล้ถึงเป้าหมายขึ้นไปอีกขั้นแล้วในวันนี้ ✨",
+  "ผลลัพธ์ของการตั้งใจ จะทำให้คุณภูมิใจในตัวเองที่สุด",
+  "ไม่มีความพยายามใดที่สูญเปล่า เชื่อมั่นในตัวเองเข้าไว้!",
+  "สู้ๆ นะคนเก่ง! วางแผนดี มีชัยไปกว่าครึ่ง 🧠",
+  "อ่านได้เท่าไหนก็คือเก่งมากแล้ว ค่อยๆ ลุยไปทีละหัวข้อนะ",
+  "เหนื่อยก็พัก แต่อย่าเพิ่งถอยนะ! เติมพลังแล้วลุยต่อ 💪",
+  "ทุกๆ หน้าที่อ่านจบ คือคะแนนที่เพิ่มขึ้นในวันสอบ",
+  "การลงทุนกับความรู้ ให้ผลตอบแทนคุ้มค่าที่สุดเสมอ",
+  "วันนี้ทำเต็มที่แล้ว ถือว่าคุณสุดยอดมาก!",
+  "อย่าเปรียบเทียบตัวเองกับใคร แข่งกับตัวเองในเมื่อวานพอ",
+  "ฝันให้ไกล แล้วก้าวไปให้ถึง คุณทำได้แน่!",
+  "ความอนาคตสดใสรอคนที่ตั้งใจอยู่ในวันนี้",
+  "หยุดพักสักครู่ จิบน้ำเย็นๆ ให้สดชื่นแล้วไปต่อกัน 🥤",
+  "เชื่อมั่นในศักยภาพของตัวเอง คุณมีพลังมากกว่าที่คิด",
+  "อีกนิดเดียวเท่านั้น! อดทนเพื่อเป้าหมายที่ตั้งไว้ ✨"
 ];
 
-const formatDateKey = (d) => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+const getTodayString = () => new Date().toISOString().split('T')[0];
+
+const getFutureDateString = (daysToAdd) => {
+  const d = new Date();
+  d.setDate(d.getDate() + daysToAdd);
+  return d.toISOString().split('T')[0];
 };
 
-const formatThaiDate = (dateStr) => {
-  const date = new Date(dateStr + 'T00:00:00');
-  const todayStr = formatDateKey(new Date());
-  
-  const options = { weekday: 'short', day: 'numeric', month: 'short' };
-  const formatted = date.toLocaleDateString('th-TH', options);
-  
-  if (dateStr === todayStr) {
-    return `วันนี้ (${formatted})`;
-  }
-  return formatted;
-};
+const INITIAL_SUBJECTS = [
+  { id: '1', name: 'แคลคูลัส 1', difficulty: 'ยาก', examDate: getFutureDateString(3), totalTopics: 10, completedTopics: 3 },
+  { id: '2', name: 'ฟิสิกส์ทั่วไป', difficulty: 'ปานกลาง', examDate: getFutureDateString(7), totalTopics: 8, completedTopics: 2 },
+  { id: '3', name: 'ภาษาอังกฤษเพื่อการสื่อสาร', difficulty: 'ง่าย', examDate: getFutureDateString(12), totalTopics: 6, completedTopics: 4 },
+];
 
-const getDaysUntilExam = (examDateStr) => {
-  if (!examDateStr || examDateStr === 'ไม่ระบุ') return null;
-  
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const examDate = new Date(examDateStr + 'T00:00:00');
-  const diffTime = examDate.getTime() - today.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-};
-
-export default function App() {
-  const [subjects, setSubjects] = useState(() => {
-    const saved = localStorage.getItem('pnc_study_subjects');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [hoursPerDay, setHoursPerDay] = useState(() => {
-    const savedHours = localStorage.getItem('pnc_study_hours');
-    return savedHours ? JSON.parse(savedHours) : 4;
-  });
-
-  const [dailyPlan, setDailyPlan] = useState(() => {
-    const savedPlan = localStorage.getItem('pnc_study_plan');
-    return savedPlan ? JSON.parse(savedPlan) : [];
-  });
-
-  const [isPremium, setIsPremium] = useState(() => {
-    const saved = localStorage.getItem('pnc_is_premium');
-    return saved !== null ? JSON.parse(saved) : false;
-  });
-
-  // Visitor Counter
-const [visitorCount, setVisitorCount] = useState(() => {
-  return parseInt(
-    localStorage.getItem('pnc_visitor_count') || '0',
-    10
-  );
-});
-
-useEffect(() => {
-  const hasVisited = localStorage.getItem('pnc_has_visited');
-  const currentCount = parseInt(
-    localStorage.getItem('pnc_visitor_count') || '0',
-    10
-  );
-
-  // ถ้าเป็นการเข้าเว็บครั้งแรกของ Browser นี้
-  if (!hasVisited) {
-    const newCount = currentCount + 1;
-
-    localStorage.setItem(
-      'pnc_visitor_count',
-      newCount.toString()
-    );
-
-    localStorage.setItem(
-      'pnc_has_visited',
-      'true'
-    );
-
-    setVisitorCount(newCount);
-  } else {
-    // ถ้าเคยเข้าแล้ว ไม่ต้องนับเพิ่ม
-    setVisitorCount(currentCount);
-  }
-}, []);
-
+export default function StudyPlannerApp() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [quoteIndex, setQuoteIndex] = useState(0);
-  const [showBreakModal, setShowBreakModal] = useState(false);
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [breakQuote, setBreakQuote] = useState('');
+  const [subjects, setSubjects] = useState(INITIAL_SUBJECTS);
+  const [dailyPlan, setDailyPlan] = useState([]);
+  
+  const [currentQuote, setCurrentQuote] = useState(ENCOURAGEMENT_QUOTES[0]);
+
+  const [editingSubjectId, setEditingSubjectId] = useState(null);
+  const [formName, setFormName] = useState('');
+  const [formDifficulty, setFormDifficulty] = useState('ปานกลาง');
+  const [formExamDate, setFormExamDate] = useState(getFutureDateString(7));
+  const [formTotalTopics, setFormTotalTopics] = useState(5);
 
   const [swapTarget, setSwapTarget] = useState(null);
   const [manualSelectSubjectId, setManualSelectSubjectId] = useState('');
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentId, setCurrentId] = useState(null);
-  const [name, setName] = useState('');
-  const [examDate, setExamDate] = useState('');
-  const [totalTopics, setTotalTopics] = useState('');
-  const [completedTopics, setCompletedTopics] = useState('');
-  const [difficulty, setDifficulty] = useState('Medium');
+  const [showBreakModal, setShowBreakModal] = useState(false);
+  const [showDonateModal, setShowDonateModal] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('pnc_study_subjects', JSON.stringify(subjects));
+    getRandomQuote();
+  }, []);
+
+  useEffect(() => {
+    const today = getTodayString();
+    setSubjects(prev => prev.filter(sub => sub.examDate >= today));
+  }, []);
+
+  useEffect(() => {
+    if (subjects.length > 0) {
+      recalculateSchedule(subjects);
+    } else {
+      setDailyPlan([]);
+    }
   }, [subjects]);
 
-  useEffect(() => {
-    localStorage.setItem('pnc_study_hours', JSON.stringify(hoursPerDay));
-  }, [hoursPerDay]);
-
-  useEffect(() => {
-    localStorage.setItem('pnc_study_plan', JSON.stringify(dailyPlan));
-  }, [dailyPlan]);
-
-  useEffect(() => {
-    localStorage.setItem('pnc_is_premium', JSON.stringify(isPremium));
-  }, [isPremium]);
-
-  const handleOpenBreakModal = () => {
-    const randomIndex = Math.floor(Math.random() * HEALING_QUOTES.length);
-    setBreakQuote(HEALING_QUOTES[randomIndex]);
-    setShowBreakModal(true);
+  const getRandomQuote = () => {
+    const idx = Math.floor(Math.random() * ENCOURAGEMENT_QUOTES.length);
+    setCurrentQuote(ENCOURAGEMENT_QUOTES[idx]);
   };
 
-  const handleSubmitSubject = (e) => {
+  const calculateDaysLeft = (examDateStr) => {
+    const today = new Date(getTodayString());
+    const examDate = new Date(examDateStr);
+    const diffTime = examDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const formatThaiDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('th-TH', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: '2-digit'
+    });
+  };
+
+  const recalculateSchedule = (currentSubjects, startFromDayIndex = 0, existingPlan = []) => {
+    const today = new Date();
+    const activeSubjects = currentSubjects.filter(s => 
+      s.completedTopics < s.totalTopics && s.examDate >= getTodayString()
+    );
+
+    if (activeSubjects.length === 0) {
+      setDailyPlan([]);
+      return;
+    }
+
+    const sortedSubjects = [...activeSubjects].sort((a, b) => {
+      const daysLeftA = calculateDaysLeft(a.examDate);
+      const daysLeftB = calculateDaysLeft(b.examDate);
+      if (daysLeftA !== daysLeftB) return daysLeftA - daysLeftB;
+      
+      const diffWeight = { 'ยาก': 3, 'ปานกลาง': 2, 'ง่าย': 1 };
+      return diffWeight[b.difficulty] - diffWeight[a.difficulty];
+    });
+
+    const newPlan = startFromDayIndex > 0 ? [...existingPlan.slice(0, startFromDayIndex)] : [];
+
+    for (let i = startFromDayIndex; i < 7; i++) {
+      const currentDate = new Date(today);
+      currentDate.setDate(today.getDate() + i);
+      const dateStr = currentDate.toISOString().split('T')[0];
+
+      const validForDay = sortedSubjects.filter(s => s.examDate >= dateStr);
+      if (validForDay.length === 0) break;
+
+      const daySubjects = [];
+      const primary = validForDay[i % validForDay.length];
+      daySubjects.push(primary);
+
+      if (validForDay.length > 1) {
+        const secondary = validForDay[(i + 1) % validForDay.length];
+        if (secondary.id !== primary.id) {
+          daySubjects.push(secondary);
+        }
+      }
+
+      const items = daySubjects.map(sub => {
+        const remainingTopics = sub.totalTopics - sub.completedTopics;
+        const topicsSuggested = Math.min(2, Math.max(1, remainingTopics));
+        const hoursPerTopic = sub.difficulty === 'ยาก' ? 2 : sub.difficulty === 'ปานกลาง' ? 1.5 : 1;
+        
+        return {
+          subjectId: sub.id,
+          name: sub.name,
+          difficulty: sub.difficulty,
+          allocatedHours: topicsSuggested * hoursPerTopic,
+          topicsSuggested,
+          examDate: sub.examDate
+        };
+      });
+
+      newPlan.push({ date: dateStr, items });
+    }
+
+    setDailyPlan(newPlan);
+  };
+
+  const handleSaveSubject = (e) => {
     e.preventDefault();
-    if (!name.trim() || !totalTopics) return;
+    if (!formName.trim()) return;
 
-    const parsedTotal = Math.max(1, Number(totalTopics) || 1);
-    const parsedCompleted = Math.min(Math.max(0, Number(completedTopics) || 0), parsedTotal);
-
-    if (isEditing) {
-      setSubjects(prev => prev.map(sub => sub.id === currentId ? {
-        ...sub,
-        name: name.trim(),
-        examDate: examDate || 'ไม่ระบุ',
-        totalTopics: parsedTotal,
-        completedTopics: parsedCompleted,
-        difficulty
-      } : sub));
+    if (editingSubjectId) {
+      setSubjects(prev => prev.map(s => s.id === editingSubjectId ? {
+        ...s,
+        name: formName,
+        difficulty: formDifficulty,
+        examDate: formExamDate,
+        totalTopics: Number(formTotalTopics)
+      } : s));
+      setEditingSubjectId(null);
     } else {
-      const newSubject = {
-        id: Date.now(),
-        name: name.trim(),
-        examDate: examDate || 'ไม่ระบุ',
-        totalTopics: parsedTotal,
-        completedTopics: parsedCompleted,
-        difficulty
+      const newSub = {
+        id: Date.now().toString(),
+        name: formName,
+        difficulty: formDifficulty,
+        examDate: formExamDate,
+        totalTopics: Number(formTotalTopics),
+        completedTopics: 0
       };
-      setSubjects(prev => [...prev, newSubject]);
+      setSubjects(prev => [...prev, newSub]);
     }
 
     resetForm();
     setActiveTab('dashboard');
   };
 
-  const handleEditClick = (sub) => {
-    setIsEditing(true);
-    setCurrentId(sub.id);
-    setName(sub.name);
-    setExamDate(sub.examDate === 'ไม่ระบุ' ? '' : sub.examDate);
-    setTotalTopics(sub.totalTopics.toString());
-    setCompletedTopics(sub.completedTopics.toString());
-    setDifficulty(sub.difficulty || 'Medium');
+  const startEditSubject = (sub) => {
+    setEditingSubjectId(sub.id);
+    setFormName(sub.name);
+    setFormDifficulty(sub.difficulty);
+    setFormExamDate(sub.examDate);
+    setFormTotalTopics(sub.totalTopics);
     setActiveTab('add');
   };
 
   const resetForm = () => {
-    setIsEditing(false);
-    setCurrentId(null);
-    setName('');
-    setExamDate('');
-    setTotalTopics('');
-    setCompletedTopics('');
-    setDifficulty('Medium');
+    setEditingSubjectId(null);
+    setFormName('');
+    setFormDifficulty('ปานกลาง');
+    setFormExamDate(getFutureDateString(7));
+    setFormTotalTopics(5);
   };
 
   const deleteSubject = (id) => {
     setSubjects(prev => prev.filter(s => s.id !== id));
   };
 
-  const updateProgress = (id, delta) => {
-    setSubjects(prev => prev.map(sub => {
-      if (sub.id === id) {
-        const updated = Math.min(Math.max(0, sub.completedTopics + delta), sub.totalTopics);
-        return { ...sub, completedTopics: updated };
+  const adjustProgress = (id, delta) => {
+    setSubjects(prev => prev.map(s => {
+      if (s.id === id) {
+        const updated = Math.min(s.totalTopics, Math.max(0, s.completedTopics + delta));
+        return { ...s, completedTopics: updated };
       }
-      return sub;
+      return s;
     }));
   };
 
-  const generateBalancedSchedule = () => {
-    if (subjects.length === 0) return alert("กรุณาเพิ่มวิชาก่อนทำการจัดตาราง");
-
-    const uncompleted = subjects.filter(s => s.completedTopics < s.totalTopics);
-    if (uncompleted.length === 0) {
-      setDailyPlan([]);
-      return alert("คุณอ่านจบครบทุกวิชาแล้ว! ยินดีด้วย🎉");
-    }
-
-    const today = new Date();
-    const hardSubs = uncompleted.filter(s => s.difficulty === 'Hard');
-    const easyMedSubs = uncompleted.filter(s => s.difficulty !== 'Hard');
-
-    let hardIdx = 0;
-    let easyIdx = 0;
-
-    const schedule = Array.from({ length: 7 }).map((_, i) => {
-      const currentDate = new Date(today);
-      currentDate.setDate(today.getDate() + i);
-      const dateStr = formatDateKey(currentDate);
-
-      let selectedForDay = [];
-
-      if (hardSubs.length > 0) {
-        selectedForDay.push(hardSubs[hardIdx % hardSubs.length]);
-        hardIdx++;
-      }
-
-      if (easyMedSubs.length > 0) {
-        selectedForDay.push(easyMedSubs[easyIdx % easyMedSubs.length]);
-        easyIdx++;
-      }
-
-      while (selectedForDay.length < Math.min(3, uncompleted.length)) {
-        const candidate = uncompleted[(hardIdx + easyIdx) % uncompleted.length];
-        if (!selectedForDay.some(s => s.id === candidate.id)) {
-          selectedForDay.push(candidate);
-        }
-        easyIdx++;
-      }
-
-      const totalAvailable = Number(hoursPerDay) || 4;
-      const count = selectedForDay.length;
-      const hoursPerSub = Math.min(2, Math.max(1, +(totalAvailable / count).toFixed(1)));
-
-      return {
-        date: dateStr,
-        items: selectedForDay.map(sub => ({
-          subjectId: sub.id,
-          name: sub.name,
-          difficulty: sub.difficulty,
-          allocatedHours: hoursPerSub,
-          topicsSuggested: Math.max(1, Math.round(hoursPerSub * 1.5))
-        }))
-      };
-    });
-
-    setDailyPlan(schedule);
-    setActiveTab('schedule');
-  };
-
-  const openSwapModal = (targetDate, itemIndex, item) => {
-    setSwapTarget({ targetDate, itemIndex, item });
-    setManualSelectSubjectId('');
-  };
-
-  const executeSwapSubject = (selectedSubId = null) => {
+  const executeSwapSubject = (targetSubjectId) => {
     if (!swapTarget) return;
 
-    const { targetDate, itemIndex } = swapTarget;
-    const uncompleted = subjects.filter(s => s.completedTopics < s.totalTopics);
-    
-    if (uncompleted.length <= 1) {
-      alert("ไม่มีวิชาอื่นที่ยังอ่านไม่เสร็จให้สลับแล้ว");
-      setSwapTarget(null);
-      return;
-    }
+    const { dayIndex, itemIndex } = swapTarget;
+    let replacementSubject;
 
-    const realDayIdx = dailyPlan.findIndex(d => d.date === targetDate);
-    if (realDayIdx === -1) {
-      setSwapTarget(null);
-      return;
-    }
-
-    const currentDayItems = dailyPlan[realDayIdx].items;
-    const currentSubId = currentDayItems[itemIndex]?.subjectId;
-
-    let newSub = null;
-
-    if (selectedSubId) {
-      newSub = uncompleted.find(s => s.id === Number(selectedSubId));
+    if (targetSubjectId) {
+      replacementSubject = subjects.find(s => s.id === targetSubjectId);
     } else {
-      const availablePool = uncompleted.filter(s => !currentDayItems.some(item => item.subjectId === s.id));
-      newSub = availablePool.length > 0 
-        ? availablePool[Math.floor(Math.random() * availablePool.length)]
-        : uncompleted.find(s => s.id !== currentSubId);
+      const candidates = subjects.filter(s => 
+        s.id !== swapTarget.item.subjectId && 
+        s.completedTopics < s.totalTopics &&
+        s.examDate >= dailyPlan[dayIndex].date
+      );
+      if (candidates.length > 0) {
+        replacementSubject = candidates[Math.floor(Math.random() * candidates.length)];
+      }
     }
 
-    if (!newSub) {
+    if (!replacementSubject) {
+      alert('ไม่มีวิชาอื่นที่สามารถสลับได้');
       setSwapTarget(null);
       return;
     }
 
-    let updatedPlan = JSON.parse(JSON.stringify(dailyPlan));
-    updatedPlan[realDayIdx].items[itemIndex] = {
-      ...updatedPlan[realDayIdx].items[itemIndex],
-      subjectId: newSub.id,
-      name: newSub.name,
-      difficulty: newSub.difficulty
+    const updatedPlan = [...dailyPlan];
+    const remainingTopics = replacementSubject.totalTopics - replacementSubject.completedTopics;
+    const topicsSuggested = Math.min(2, Math.max(1, remainingTopics));
+    const hoursPerTopic = replacementSubject.difficulty === 'ยาก' ? 2 : replacementSubject.difficulty === 'ปานกลาง' ? 1.5 : 1;
+
+    updatedPlan[dayIndex].items[itemIndex] = {
+      subjectId: replacementSubject.id,
+      name: replacementSubject.name,
+      difficulty: replacementSubject.difficulty,
+      allocatedHours: topicsSuggested * hoursPerTopic,
+      topicsSuggested,
+      examDate: replacementSubject.examDate
     };
 
-    setDailyPlan(updatedPlan);
+    recalculateSchedule(subjects, dayIndex + 1, updatedPlan);
     setSwapTarget(null);
   };
 
-  const todayStr = formatDateKey(new Date());
-  const activeSubjectIds = new Set(subjects.filter(s => s.completedTopics < s.totalTopics).map(s => s.id));
-
-  const filteredDailyPlan = dailyPlan
-    .filter(dayPlan => dayPlan.date >= todayStr)
-    .map(dayPlan => ({
-      ...dayPlan,
-      items: dayPlan.items.filter(item => activeSubjectIds.has(item.subjectId))
-    }))
-    .filter(dayPlan => dayPlan.items.length > 0);
-
-  const totalTopicsCount = subjects.reduce((sum, s) => sum + s.totalTopics, 0);
-  const totalCompletedCount = subjects.reduce((sum, s) => sum + s.completedTopics, 0);
-  const overallProgress = totalTopicsCount > 0 ? Math.round((totalCompletedCount / totalTopicsCount) * 100) : 0;
-
-  const urgentExams = subjects
-    .map(s => ({ ...s, daysLeft: getDaysUntilExam(s.examDate) }))
-    .filter(s => s.daysLeft !== null && s.daysLeft >= 0 && s.daysLeft <= 3 && s.completedTopics < s.totalTopics)
-    .sort((a, b) => a.daysLeft - b.daysLeft);
+  const totalTopicsAll = subjects.reduce((acc, curr) => acc + curr.totalTopics, 0);
+  const completedTopicsAll = subjects.reduce((acc, curr) => acc + curr.completedTopics, 0);
+  const totalProgressPercent = totalTopicsAll > 0 ? Math.round((completedTopicsAll / totalTopicsAll) * 100) : 0;
+  
+  const urgentSubjects = [...subjects]
+    .filter(s => s.completedTopics < s.totalTopics)
+    .sort((a, b) => calculateDaysLeft(a.examDate) - calculateDaysLeft(b.examDate));
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 p-4 md:p-8 font-sans pb-36 md:pb-16">
-      <div className="max-w-4xl mx-auto">
-        
-        {/* HEADER */}
-        <header className="flex flex-col gap-3 mb-5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100 shrink-0">
-                <BookOpen size={22} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-lg md:text-2xl font-black text-slate-900 tracking-tight">PNC Study Planner</h1>
-                  {isPremium ? (
-                    <span className="bg-amber-100 text-amber-800 border border-amber-300 text-[10px] px-2 py-0.5 rounded-full font-black flex items-center gap-1 shadow-sm">
-                      <Crown size={11} className="fill-amber-500 text-amber-600" /> PREMIUM
-                    </span>
-                  ) : (
-                    <span className="bg-slate-100 text-slate-600 border border-slate-200 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                      FREE TRIAL
-                    </span>
-                  )}
-                </div>
-              </div>
+    <div className="min-h-screen bg-slate-50 text-slate-800 pb-28 font-sans antialiased">
+      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black shadow-md shadow-indigo-100">
+              <BookOpen size={20} />
             </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              {!isPremium && (
-                <button
-                  onClick={() => setShowPremiumModal(true)}
-                  className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-2xl py-2 px-3 flex items-center gap-1.5 font-bold text-xs shadow-md transition active:scale-95"
-                >
-                  <Crown size={14} /> อัปเกรด
-                </button>
-              )}
-
-              {activeTab === 'dashboard' && (
-                <button 
-                  onClick={handleOpenBreakModal}
-                  className="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-200/80 rounded-2xl py-2 px-3 flex items-center gap-1.5 font-bold text-xs shadow-sm transition active:scale-95"
-                >
-                  <span>🍿</span> ขอพักผ่อน
-                </button>
-              )}
+            <div>
+              <h1 className="text-base font-black text-slate-900 leading-none">PNC Study Planner</h1>
+              <p className="text-[10px] text-slate-400 font-bold mt-0.5">จัดตารางอ่านหนังสืออัจฉริยะ (ใช้งานฟรี)</p>
             </div>
           </div>
 
-          <div className="bg-white/80 border border-slate-200/80 rounded-2xl p-2.5 px-4 flex items-center justify-between text-xs text-slate-600 shadow-sm">
-            <div className="flex items-center gap-2">
-              <Users size={15} className="text-indigo-600" />
-              <span>
-                ผู้ใช้งานทั้งหมด:{' '}
-                <strong className="text-slate-900 font-extrabold">
-                  {visitorCount.toLocaleString()}
-                </strong>{' '}
-                คน
-              </span>
-            </div>
-            {!isPremium ? (
-              <button 
-                onClick={() => setShowPremiumModal(true)}
-                className="text-amber-600 hover:text-amber-700 font-bold text-[11px] flex items-center gap-1 underline underline-offset-2"
-              >
-                เปิดใช้งานฟรี สั่งซื้อพรีเมียม <ChevronRight size={12} />
-              </button>
-            ) : (
-              <span className="text-emerald-600 font-bold text-[11px] flex items-center gap-1">
-                <Check size={12} /> เปิดใช้งานฟีเจอร์พรีเมียมครบแล้ว
-              </span>
-            )}
-          </div>
+          <button 
+            onClick={() => setShowDonateModal(true)}
+            className="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
+          >
+            <Heart size={14} className="text-amber-600 fill-amber-500" />
+            <span>สนับสนุน / โดเนท</span>
+          </button>
+        </div>
+      </header>
 
-          {urgentExams.length > 0 && (
-            <div className="bg-rose-50 border border-rose-200/80 rounded-2xl p-3 flex items-start gap-2 text-xs text-rose-900 animate-pulse">
-              <AlertCircle size={18} className="text-rose-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-extrabold text-rose-800">⚠️ มีวิชาใกล้สอบด่วน!</p>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {urgentExams.map(ex => (
-                    <span key={ex.id} className="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded-lg border border-rose-200 text-[11px]">
-                      {ex.name} ({ex.daysLeft === 0 ? 'สอบวันนี้!' : `อีก ${ex.daysLeft} วัน`})
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </header>
-
-        {/* TAB 1: DASHBOARD */}
+      <main className="max-w-4xl mx-auto px-4 pt-5">
         {activeTab === 'dashboard' && (
           <div className="space-y-5 animate-in fade-in duration-200">
-            <div className="bg-gradient-to-r from-rose-500 via-purple-500 to-indigo-600 rounded-3xl p-5 text-white shadow-xl shadow-indigo-100 relative">
-              <p className="text-[11px] font-semibold text-white/80 mb-2 flex items-center gap-1">
-                กำลังใจประจำวัน <Heart size={12} className="fill-white" />
-              </p>
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-sm md:text-base font-bold leading-relaxed">
-                  {HEALING_QUOTES[quoteIndex]}
-                </p>
+            <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-3xl p-5 text-white shadow-lg shadow-indigo-100 space-y-4">
+              <div className="flex justify-between items-start gap-2">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-md">
+                  ✨ กำลังใจวันนี้
+                </span>
                 <button 
-                  onClick={() => setQuoteIndex((prev) => (prev + 1) % HEALING_QUOTES.length)}
-                  className="p-1.5 hover:bg-white/20 rounded-xl transition shrink-0"
-                  aria-label="สุ่มโควทใหม่"
+                  onClick={getRandomQuote}
+                  className="text-xs font-bold bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-xl transition flex items-center gap-1"
                 >
-                  <RefreshCw size={16} />
+                  <Sparkles size={12} /> สุ่มกำลังใจ
+                </button>
+              </div>
+
+              <p className="text-sm md:text-base font-bold leading-relaxed">
+                "{currentQuote}"
+              </p>
+
+              <div className="flex flex-wrap gap-2 pt-1 border-t border-indigo-500/40">
+                <button 
+                  onClick={() => setShowBreakModal(true)}
+                  className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+                >
+                  <Coffee size={14} /> ขอพักสายตา
+                </button>
+                <button 
+                  onClick={() => setShowDonateModal(true)}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
+                >
+                  <Heart size={14} className="fill-slate-900" /> สนับสนุนผู้พัฒนา
                 </button>
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-bold text-slate-700">ความคืบหน้ารวม</span>
-                <span className="text-sm font-extrabold text-indigo-600">{overallProgress}%</span>
-              </div>
-              <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden mb-5">
-                <div className="bg-indigo-600 h-full transition-all duration-300 rounded-full" style={{ width: `${overallProgress}%` }}></div>
-              </div>
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                    <Target size={18} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-400 font-bold">อ่านแล้ว</p>
-                    <p className="text-xs font-extrabold text-slate-800">{totalCompletedCount} / {totalTopicsCount} หัวข้อ</p>
-                  </div>
+            {urgentSubjects.length > 0 && (
+              <div className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 space-y-2">
+                <div className="flex items-center gap-1.5 text-amber-800 font-extrabold text-xs">
+                  <AlertTriangle size={15} className="text-amber-600" />
+                  <span>วิชาด่วนใกล้สอบ! (เรียงลำดับวันคงเหลือ)</span>
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                    <Layers size={18} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-400 font-bold">วิชาทั้งหมด</p>
-                    <p className="text-xs font-extrabold text-slate-800">{subjects.length} วิชา</p>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  {urgentSubjects.slice(0, 3).map(sub => {
+                    const daysLeft = calculateDaysLeft(sub.examDate);
+                    return (
+                      <div key={sub.id} className="bg-white rounded-xl p-3 border border-amber-200/80 shadow-sm flex justify-between items-center">
+                        <div>
+                          <h4 className="font-bold text-xs text-slate-800 truncate">{sub.name}</h4>
+                          <span className="text-[10px] text-slate-400">สอบ {formatThaiDate(sub.examDate)}</span>
+                        </div>
+                        <span className={`text-[11px] font-black px-2 py-0.5 rounded-md ${
+                          daysLeft <= 3 ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          เหลือ {daysLeft} วัน
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
+              </div>
+            )}
+
+            <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-2">
+              <div className="flex justify-between items-center text-xs font-extrabold">
+                <span className="text-slate-700">ความคืบหน้ารวมทุกวิชา</span>
+                <span className="text-indigo-600">{completedTopicsAll} / {totalTopicsAll} หัวข้อ ({totalProgressPercent}%)</span>
+              </div>
+              <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5">
+                <div 
+                  className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-500"
+                  style={{ width: `${totalProgressPercent}%` }}
+                />
               </div>
             </div>
 
             <div className="space-y-3">
-              <div className="flex justify-between items-center px-1">
-                <h3 className="text-sm font-bold text-slate-700">วิชาทั้งหมด ({subjects.length})</h3>
-                {subjects.length > 0 && (
-                  <button 
-                    onClick={generateBalancedSchedule}
-                    className="text-xs text-indigo-600 font-bold flex items-center gap-1 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition"
-                  >
-                    <Sparkles size={12} /> จัดตาราง 7 วันล่วงหน้า
-                  </button>
-                )}
+              <div className="flex justify-between items-center">
+                <h3 className="text-xs font-black text-slate-600 uppercase tracking-wider">วิชาทั้งหมดที่มี ({subjects.length})</h3>
+                <button 
+                  onClick={() => { resetForm(); setActiveTab('add'); }}
+                  className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1"
+                >
+                  <Plus size={14} /> เพิ่มวิชาใหม่
+                </button>
               </div>
 
               {subjects.length === 0 ? (
-                <div className="bg-white rounded-3xl p-8 text-center border border-slate-200/60 shadow-sm">
-                  <BookOpen size={28} className="mx-auto text-indigo-400 mb-2" />
-                  <p className="text-sm font-bold text-slate-700">ยังไม่มีข้อมูลวิชา</p>
-                  <p className="text-xs text-slate-400 mb-4">กดปุ่ม + ด้านล่างเพื่อเริ่มเพิ่มวิชาเรียน</p>
-                  <button 
-                    onClick={() => { resetForm(); setActiveTab('add'); }}
-                    className="py-2 px-4 bg-indigo-600 text-white font-bold rounded-xl text-xs shadow-md"
-                  >
-                    + เพิ่มวิชาใหม่
-                  </button>
+                <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-slate-300 p-6 space-y-2">
+                  <BookOpen size={28} className="mx-auto text-slate-300" />
+                  <p className="text-xs font-bold text-slate-500">ยังไม่มีรายชื่อวิชาในระบบ</p>
+                  <p className="text-[11px] text-slate-400">กดเพิ่มวิชาเพื่อเริ่มต้นวางแผนอ่านหนังสือได้เลย</p>
                 </div>
               ) : (
-                <div className="space-y-2.5">
-                  {subjects.map((sub) => {
-                    const subProgress = sub.totalTopics > 0 ? Math.round((sub.completedTopics / sub.totalTopics) * 100) : 0;
-                    const isCompleted = sub.completedTopics >= sub.totalTopics;
-                    const daysLeft = getDaysUntilExam(sub.examDate);
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {subjects.map(sub => {
+                    const daysLeft = calculateDaysLeft(sub.examDate);
+                    const progress = Math.round((sub.completedTopics / sub.totalTopics) * 100);
 
                     return (
-                      <div key={sub.id} className={`p-4 rounded-2xl border shadow-sm flex items-center justify-between gap-3 ${isCompleted ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white border-slate-200/70'}`}>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                            <h4 className={`font-bold text-sm truncate ${isCompleted ? 'text-emerald-800 line-through' : 'text-slate-800'}`}>{sub.name}</h4>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold border bg-slate-50 text-slate-600 border-slate-200">
-                              {sub.difficulty}
-                            </span>
-
-                            {daysLeft !== null && (
-                              daysLeft < 0 ? (
-                                <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full text-[10px] font-bold">สอบแล้ว</span>
-                              ) : daysLeft === 0 ? (
-                                <span className="bg-rose-600 text-white px-2 py-0.5 rounded-full text-[10px] font-black animate-pulse">🔥 สอบวันนี้!</span>
-                              ) : daysLeft <= 3 ? (
-                                <span className="bg-rose-100 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full text-[10px] font-bold">🚨 อีก {daysLeft} วัน</span>
-                              ) : daysLeft <= 7 ? (
-                                <span className="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full text-[10px] font-bold">⏳ อีก {daysLeft} วัน</span>
-                              ) : (
-                                <span className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full text-[10px] font-bold">🗓️ อีก {daysLeft} วัน</span>
-                              )
-                            )}
-
-                            {isCompleted && (
-                              <span className="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">
-                                อ่านจบแล้ว 🎉
+                      <div key={sub.id} className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h4 className="font-bold text-xs text-slate-800">{sub.name}</h4>
+                              <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                {sub.difficulty}
                               </span>
-                            )}
+                            </div>
+                            <p className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1">
+                              <Clock size={11} className="text-indigo-500" /> สอบ {formatThaiDate(sub.examDate)} (เหลือ {daysLeft} วัน)
+                            </p>
                           </div>
 
-                          <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-2">
-                            <span><Calendar size={11} className="inline mr-1" />{sub.examDate}</span>
-                            <span>•</span>
-                            <span>{sub.completedTopics}/{sub.totalTopics} หัวข้อ</span>
-                          </div>
-
-                          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                            <div className={`${isCompleted ? 'bg-emerald-500' : 'bg-indigo-600'} h-full rounded-full transition-all duration-300`} style={{ width: `${subProgress}%` }}></div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button 
+                              onClick={() => startEditSubject(sub)}
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition"
+                              title="แก้ไขวิชา"
+                            >
+                              <Edit3 size={14} />
+                            </button>
+                            <button 
+                              onClick={() => deleteSubject(sub.id)}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                              title="ลบวิชา"
+                            >
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button onClick={() => updateProgress(sub.id, -1)} className="w-7 h-7 bg-slate-100 rounded-lg font-bold text-xs active:scale-95 text-slate-700 hover:bg-slate-200">-</button>
-                          <button onClick={() => updateProgress(sub.id, 1)} className="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg font-bold text-xs active:scale-95 hover:bg-indigo-100">+</button>
-                          <button onClick={() => handleEditClick(sub)} className="p-1.5 text-slate-400 hover:text-indigo-600"><Edit3 size={15} /></button>
-                          <button onClick={() => deleteSubject(sub.id)} className="p-1.5 text-slate-300 hover:text-rose-500"><Trash2 size={15} /></button>
+                        <div className="space-y-1.5 pt-1 border-t border-slate-100">
+                          <div className="flex justify-between items-center text-[11px]">
+                            <span className="text-slate-500 font-bold">ความคืบหน้า: {sub.completedTopics}/{sub.totalTopics} หัวข้อ</span>
+                            <span className="font-bold text-indigo-600">{progress}%</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                              <div className="h-full bg-indigo-600 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <button 
+                                onClick={() => adjustProgress(sub.id, -1)}
+                                disabled={sub.completedTopics <= 0}
+                                className="w-6 h-6 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 rounded-lg font-bold text-xs flex items-center justify-center"
+                              >
+                                -
+                              </button>
+                              <button 
+                                onClick={() => adjustProgress(sub.id, 1)}
+                                disabled={sub.completedTopics >= sub.totalTopics}
+                                className="w-6 h-6 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-40 text-indigo-700 rounded-lg font-bold text-xs flex items-center justify-center"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     );
@@ -581,182 +480,92 @@ useEffect(() => {
           </div>
         )}
 
-        {/* TAB 2: ADD/EDIT */}
-        {activeTab === 'add' && (
-          <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-slate-200/60 animate-in fade-in duration-200">
-            <h2 className="text-base font-bold text-slate-800 flex items-center gap-2 mb-4">
-              {isEditing ? <Edit3 size={18} className="text-amber-500" /> : <Plus size={18} className="text-indigo-600" />} 
-              {isEditing ? 'แก้ไขข้อมูลวิชา' : 'เพิ่มวิชาเตรียมสอบใหม่'}
-            </h2>
-
-            <form onSubmit={handleSubmitSubject} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">ชื่อวิชา / หนังสือ</label>
-                <input 
-                  type="text" 
-                  placeholder="เช่น Calculus"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl p-3 text-sm outline-none focus:border-indigo-500 focus:bg-white transition"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">วันสอบ</label>
-                  <input 
-                    type="date" 
-                    value={examDate}
-                    onChange={(e) => setExamDate(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5 text-xs outline-none focus:border-indigo-500 text-slate-600"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">ระดับความยาก</label>
-                  <select 
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5 text-xs outline-none focus:border-indigo-500 font-bold text-slate-700"
-                  >
-                    <option value="Easy">🟢 ง่าย (Easy)</option>
-                    <option value="Medium">🟡 ปานกลาง (Medium)</option>
-                    <option value="Hard">🔴 ยาก (Hard)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">หัวข้อทั้งหมด</label>
-                  <input 
-                    type="number" 
-                    placeholder="เช่น 10"
-                    value={totalTopics}
-                    onChange={(e) => setTotalTopics(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl p-3 text-sm outline-none focus:border-indigo-500"
-                    required
-                    min="1"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">อ่านแล้ว (หัวข้อ)</label>
-                  <input 
-                    type="number" 
-                    placeholder="0"
-                    value={completedTopics}
-                    onChange={(e) => setCompletedTopics(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl p-3 text-sm outline-none focus:border-indigo-500"
-                    min="0"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button 
-                  type="button"
-                  onClick={() => { resetForm(); setActiveTab('dashboard'); }}
-                  className="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-2xl text-xs hover:bg-slate-200 transition"
-                >
-                  ยกเลิก
-                </button>
-                <button 
-                  type="submit"
-                  className={`flex-1 py-3 ${isEditing ? 'bg-amber-500 hover:bg-amber-600' : 'bg-indigo-600 hover:bg-indigo-700'} text-white font-bold rounded-2xl shadow-md text-xs transition`}
-                >
-                  {isEditing ? 'อัปเดตข้อมูล' : 'บันทึกวิชา'}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* TAB 3: SCHEDULE */}
         {activeTab === 'schedule' && (
           <div className="space-y-4 animate-in fade-in duration-200">
-            <div className="bg-indigo-50/80 border border-indigo-100 rounded-2xl p-3.5 flex items-start gap-2.5 text-xs text-indigo-900">
-              <Lightbulb size={18} className="text-indigo-600 shrink-0 mt-0.5" />
+            <div className="flex justify-between items-center">
               <div>
-                <p className="font-bold mb-0.5">ระบบจัดตารางอ่านหนังสืออัจฉริยะ</p>
-                <p className="text-indigo-700 text-[11px]">
-                  คำนวณตามเวลาอ่านคงเหลือจริง กระจายวิชาตามระดับความยากไม่ให้สมองล้าเกินไป
-                </p>
+                <h2 className="text-sm font-black text-slate-800">ตารางอ่านหนังสือตามปฏิทิน</h2>
+                <p className="text-[11px] text-slate-400">เน้นวิชาใกล้สอบก่อน อัปเดตลบวิชาอัตโนมัติเมื่อผ่านวันสอบ</p>
               </div>
-            </div>
-
-            <div className="bg-white rounded-3xl p-4 shadow-sm border border-slate-200/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Clock size={16} className="text-indigo-600" />
-                <span className="text-xs font-bold text-slate-700">เวลาอ่านรวมต่อวัน:</span>
-                <input 
-                  type="number" 
-                  value={hoursPerDay}
-                  onChange={(e) => setHoursPerDay(Math.max(1, Math.min(16, Number(e.target.value) || 1)))}
-                  className="w-16 bg-slate-100 border border-slate-200 rounded-xl px-2 py-1 text-center font-bold text-xs text-indigo-600 focus:bg-white outline-none"
-                  min="1"
-                  max="16"
-                />
-                <span className="text-xs text-slate-500 font-medium">ชั่วโมง</span>
-              </div>
-              
               <button 
-                onClick={generateBalancedSchedule}
-                className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition active:scale-95"
+                onClick={() => recalculateSchedule(subjects)}
+                className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1"
               >
-                <RefreshCw size={14} /> คำนวณตารางใหม่
+                <Sparkles size={12} /> คำนวณตารางใหม่
               </button>
             </div>
 
-            {filteredDailyPlan.length === 0 ? (
-              <div className="bg-white rounded-3xl p-8 text-center border border-slate-200/60 shadow-sm">
-                <CalendarDays size={32} className="mx-auto text-slate-300 mb-2" />
-                <p className="text-sm font-bold text-slate-700">ยังไม่มีตารางอ่านหนังสือ</p>
-                <p className="text-xs text-slate-400 mb-4">กดปุ่มจัดตารางเพื่อคำนวณแผนอ่านหนังสือ 7 วันล่วงหน้า</p>
-                <button 
-                  onClick={generateBalancedSchedule}
-                  className="py-2.5 px-4 bg-indigo-600 text-white font-bold rounded-xl text-xs shadow-md"
+            {dailyPlan.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-3xl border border-slate-200/80 p-6 space-y-3 shadow-sm">
+                <Clock4 size={32} className="mx-auto text-slate-300" />
+                <h3 className="text-sm font-bold text-slate-800">ยังไม่มีตารางอ่านหนังสือในตอนนี้</h3>
+                <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                  อาจเนื่องจากยังไม่มีวิชา หรือวิชาที่มีอยู่สอบเสร็จเรียบร้อยแล้ว
+                </p>
+                <button
+                  onClick={() => { resetForm(); setActiveTab('add'); }}
+                  className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-md"
                 >
-                  ✨ สั่งจัดตารางอ่านหนังสือ
+                  + เพิ่มวิชาอ่าน
                 </button>
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredDailyPlan.map((dayPlan) => (
+                {dailyPlan.map((dayPlan, dayIndex) => (
                   <div key={dayPlan.date} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
                     <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-100 flex justify-between items-center">
-                      <span className="text-xs font-black text-slate-700 flex items-center gap-1.5">
+                      <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
                         <Calendar size={13} className="text-indigo-600" />
                         {formatThaiDate(dayPlan.date)}
                       </span>
-                      <span className="text-[11px] font-bold text-slate-400">
-                        {dayPlan.items.reduce((sum, item) => sum + item.allocatedHours, 0)* 10/10} ชม.
+                      <span className="text-[10px] bg-slate-200/60 text-slate-600 font-bold px-2 py-0.5 rounded-md">
+                        รวมอ่าน ~{dayPlan.items.reduce((acc, curr) => acc + curr.allocatedHours, 0)} ชม.
                       </span>
                     </div>
 
-                    <div className="p-3 space-y-2">
-                      {dayPlan.items.map((item, itemIndex) => (
-                        <div key={itemIndex} className="p-2.5 rounded-xl bg-slate-50/50 border border-slate-100 flex items-center justify-between gap-2">
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className="text-xs font-bold text-slate-800 truncate">{item.name}</span>
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-white border text-slate-500 font-bold">{item.difficulty}</span>
+                    <div className="p-3 divide-y divide-slate-100">
+                      {dayPlan.items.map((item, itemIndex) => {
+                        const daysLeft = calculateDaysLeft(item.examDate);
+                        return (
+                          <div key={`${item.subjectId}-${itemIndex}`} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <h5 className="text-xs font-bold text-slate-800 truncate">{item.name}</h5>
+                                <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                  {item.difficulty}
+                                </span>
+                                {daysLeft <= 3 && (
+                                  <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-rose-100 text-rose-600 border border-rose-200">
+                                    เร่งอ่าน!
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-slate-400">
+                                อ่าน ~{item.allocatedHours} ชม. (เป้าหมาย {item.topicsSuggested} หัวข้อ) • สอบในอีก {daysLeft} วัน
+                              </p>
                             </div>
-                            <p className="text-[11px] text-slate-400">
-                              อ่านประมาณ <strong className="text-slate-600">{item.allocatedHours} ชม.</strong> (~{item.topicsSuggested} หัวข้อ)
-                            </p>
-                          </div>
 
-                          <button 
-                            onClick={() => openSwapModal(dayPlan.date, itemIndex, item)}
-                            className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition shrink-0"
-                            title="สลับวิชา"
-                          >
-                            <Shuffle size={14} />
-                          </button>
-                        </div>
-                      ))}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button 
+                                onClick={() => {
+                                  setSwapTarget({ dayIndex, itemIndex, item });
+                                  setManualSelectSubjectId('');
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                                title="สลับวิชา"
+                              >
+                                <Shuffle size={14} />
+                              </button>
+                              <button 
+                                onClick={() => adjustProgress(item.subjectId, 1)}
+                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition active:scale-95"
+                              >
+                                <CheckCircle2 size={12} /> เสร็จแล้ว
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
@@ -765,174 +574,241 @@ useEffect(() => {
           </div>
         )}
 
-      </div>
-
-      {/* NAVBAR BOTTOM */}
-      <nav className="fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg z-40">
-        <div className="max-w-3xl mx-auto w-full flex justify-around items-center px-2 py-2">
-          
-          <button 
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex-1 max-w-[120px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3 py-2 rounded-xl text-xs font-bold transition ${
-              activeTab === 'dashboard' 
-                ? 'bg-indigo-600 text-white shadow-md' 
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <LayoutDashboard size={16} />
-            <span>หน้าหลัก</span>
-          </button>
-
-          <button 
-            onClick={() => { resetForm(); setActiveTab('add'); }}
-            className={`flex-1 max-w-[120px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3 py-2 rounded-xl text-xs font-bold transition ${
-              activeTab === 'add' 
-                ? 'bg-indigo-600 text-white shadow-md' 
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Plus size={16} />
-            <span>เพิ่มวิชา</span>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('schedule')}
-            className={`flex-1 max-w-[120px] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3 py-2 rounded-xl text-xs font-bold transition ${
-              activeTab === 'schedule' 
-                ? 'bg-indigo-600 text-white shadow-md' 
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <CalendarDays size={16} />
-            <span>ตารางอ่าน</span>
-          </button>
-
-        </div>
-      </nav>
-
-      {/* MODAL 1: BREAK QUOTE */}
-      {showBreakModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 border border-slate-100 animate-in zoom-in-95 duration-150">
-            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl">
-              🍿
+        {activeTab === 'add' && (
+          <div className="bg-white rounded-3xl p-5 md:p-6 border border-slate-200/80 shadow-sm space-y-4 animate-in fade-in max-w-xl mx-auto">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <h2 className="text-sm font-black text-slate-800">
+                {editingSubjectId ? 'แก้ไขข้อมูลวิชา' : 'เพิ่มวิชาใหม่เข้าตาราง'}
+              </h2>
+              {editingSubjectId && (
+                <button onClick={resetForm} className="text-xs text-slate-400 hover:text-slate-600">
+                  ยกเลิกการแก้ไข
+                </button>
+              )}
             </div>
-            <div>
-              <h3 className="font-extrabold text-slate-800 text-lg">พักผ่อนสักครู่นะ</h3>
-              <p className="text-xs text-slate-500 mt-1">ชาร์จพลังแล้วค่อยกลับมาสู้ต่อ!</p>
-            </div>
-            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-amber-900 font-bold text-sm leading-relaxed">
-              "{breakQuote}"
-            </div>
-            <button 
-              onClick={() => setShowBreakModal(false)}
-              className="w-full py-3 bg-slate-900 text-white font-bold rounded-2xl text-xs hover:bg-slate-800 transition"
-            >
-              รับทราบ ลุยต่อ! 🚀
-            </button>
+
+            <form onSubmit={handleSaveSubject} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1">ชื่อวิชา</label>
+                <input 
+                  type="text"
+                  required
+                  value={formName}
+                  onChange={e => setFormName(e.target.value)}
+                  placeholder="เช่น แคลคูลัส 1, ภาษาอังกฤษ..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs outline-none focus:border-indigo-500 font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1">ระดับความยาก</label>
+                  <select 
+                    value={formDifficulty}
+                    onChange={e => setFormDifficulty(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs outline-none font-bold text-slate-700"
+                  >
+                    <option value="ง่าย">ง่าย</option>
+                    <option value="ปานกลาง">ปานกลาง</option>
+                    <option value="ยาก">ยาก</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1">วันสอบ (ปฏิทิน)</label>
+                  <input 
+                    type="date"
+                    required
+                    min={getTodayString()}
+                    value={formExamDate}
+                    onChange={e => setFormExamDate(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs outline-none font-bold text-slate-700"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1">จำนวนหัวข้อทั้งหมดที่จะอ่าน</label>
+                <input 
+                  type="number"
+                  min={1}
+                  max={100}
+                  required
+                  value={formTotalTopics}
+                  onChange={e => setFormTotalTopics(Number(e.target.value))}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs outline-none font-bold text-slate-700"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-2">
+                <button 
+                  type="button" 
+                  onClick={() => { resetForm(); setActiveTab('dashboard'); }}
+                  className="flex-1 py-2.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-200 transition"
+                >
+                  ยกเลิก
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition"
+                >
+                  {editingSubjectId ? 'บันทึกการแก้ไข' : 'บันทึกวิชาใหม่'}
+                </button>
+              </div>
+            </form>
           </div>
-        </div>
-      )}
+        )}
+      </main>
 
-      {/* MODAL 2: SWAP SUBJECT */}
       {swapTarget && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 border border-slate-100">
-            <div className="flex justify-between items-center">
-              <h3 className="font-extrabold text-slate-800 text-sm flex items-center gap-1.5">
-                <Shuffle size={16} className="text-indigo-600" /> สลับวิชาในตาราง
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-slate-100 space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 className="font-bold text-sm text-slate-800 flex items-center gap-1.5">
+                <Shuffle size={16} className="text-indigo-600" /> สลับวิชาที่จะอ่าน
               </h3>
-              <button onClick={() => setSwapTarget(null)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setSwapTarget(null)} className="text-slate-400 hover:text-slate-600 p-1">
                 <X size={18} />
               </button>
             </div>
 
-            <p className="text-xs text-slate-500">
-              วิชาปัจจุบัน: <strong className="text-slate-800">{swapTarget.item.name}</strong>
+            <p className="text-xs text-slate-600">
+              สลับวิชา <strong className="text-slate-900">{swapTarget.item.name}</strong> ออกจากตารางวัน
             </p>
 
             <div className="space-y-3">
               <button 
                 onClick={() => executeSwapSubject(null)}
-                className="w-full py-2.5 px-3 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition"
+                className="w-full py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs border border-indigo-200 flex items-center justify-center gap-1.5 transition"
               >
-                <Sparkles size={14} /> ให้ระบบสุ่มวิชาอื่นให้แทน
+                <Shuffle size={14} /> สุ่มสลับวิชาอัตโนมัติ
               </button>
 
               <div className="relative flex py-1 items-center">
                 <div className="flex-grow border-t border-slate-200"></div>
-                <span className="flex-shrink mx-2 text-[10px] font-bold text-slate-400">หรือเลือกวิชาเอง</span>
+                <span className="flex-shrink mx-2 text-[10px] text-slate-400 font-bold">หรือเลือกวิชาเอง</span>
                 <div className="flex-grow border-t border-slate-200"></div>
               </div>
 
               <select 
                 value={manualSelectSubjectId}
                 onChange={(e) => setManualSelectSubjectId(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-indigo-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs outline-none font-bold text-slate-700"
               >
-                <option value="">-- เลือกวิชาที่ต้องการ --</option>
+                <option value="">-- เลือกวิชาที่ต้องการสลับ --</option>
                 {subjects
-                  .filter(s => s.completedTopics < s.totalTopics)
+                  .filter(s => s.completedTopics < s.totalTopics && s.id !== swapTarget.item.subjectId)
                   .map(s => (
                     <option key={s.id} value={s.id}>{s.name} ({s.difficulty})</option>
-                  ))
-                }
+                  ))}
               </select>
 
-              <button 
-                disabled={!manualSelectSubjectId}
-                onClick={() => executeSwapSubject(manualSelectSubjectId)}
-                className="w-full py-2.5 bg-indigo-600 disabled:bg-slate-200 text-white font-bold rounded-xl text-xs hover:bg-indigo-700 transition"
-              >
-                ยืนยันการเลือก
-              </button>
+              <div className="flex gap-2 pt-2">
+                <button 
+                  onClick={() => setSwapTarget(null)}
+                  className="flex-1 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-200"
+                >
+                  ยกเลิก
+                </button>
+                <button 
+                  onClick={() => executeSwapSubject(manualSelectSubjectId)}
+                  disabled={!manualSelectSubjectId}
+                  className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs shadow-sm"
+                >
+                  ยืนยันสลับวิชา
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL 3: PREMIUM */}
-      {showPremiumModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 border border-slate-100">
-            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto">
-              <Crown size={24} />
+      {showBreakModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-100 text-center space-y-4">
+            <div className="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+              🍿
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-900 text-lg">PNC Study Planner Premium</h3>
-              <p className="text-xs text-slate-500 mt-1">ปลดล็อกฟีเจอร์การเรียนครบวงจร</p>
+              <h3 className="font-extrabold text-base text-slate-800">ได้เวลาชาร์จแบตแล้ว!</h3>
+              <p className="text-xs text-slate-500 mt-1">วางหนังสือลงสักพัก ไปหาของอร่อยกิน หรือพักสายตาดูนะ</p>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl p-3 text-left space-y-2 text-xs text-slate-600">
-              <div className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-500 shrink-0" />
-                <span>จัดตารางเรียนไม่อั้น</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-500 shrink-0" />
-                <span>ระบบสลับวิชาอัจฉริยะ</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check size={14} className="text-emerald-500 shrink-0" />
-                <span>แจ้งเตือนวิชาใกล้สอบด่วน</span>
-              </div>
+            <div className="bg-amber-50/80 border border-amber-200/60 rounded-2xl p-4 text-xs font-bold text-amber-900 leading-relaxed">
+              "{currentQuote}"
             </div>
 
-            <div className="space-y-2">
-              <button 
-                onClick={() => {
-                  setIsPremium(false);
-                  setShowPremiumModal(false);
-                }}
-                className="w-full py-2.5 bg-rose-50 text-rose-600 font-bold rounded-2xl text-xs hover:bg-rose-100 transition border border-rose-100"
-              >
-                ยกเลิกสถานะ Premium
-              </button>
-            </div>
+            <button 
+              onClick={() => setShowBreakModal(false)}
+              className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs shadow-md transition"
+            >
+              เข้าใจแล้ว ชาร์จพลังใจเรียบร้อย! ✨
+            </button>
           </div>
         </div>
       )}
 
+      {showDonateModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-100 space-y-4 text-center">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+              <div className="flex items-center gap-1.5 text-amber-600 font-extrabold text-sm">
+                <Heart size={18} className="fill-amber-500" />
+                <span>สนับสนุนผู้พัฒนาเว็บ</span>
+              </div>
+              <button onClick={() => setShowDonateModal(false)} className="text-slate-400 hover:text-slate-600 p-1">
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              เว็บนี้เปิดให้ **ใช้งานฟรี 100%** ไม่มีระบบกั๊กฟีเจอร์ หากแอปนี้ช่วยให้คุณจัดตารางอ่านหนังสือได้ดีขึ้น คุณสามารถร่วมเลี้ยงกาแฟ/สนับสนุนผู้พัฒนาได้ที่นี่ครับ ☕
+            </p>
+
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">PromptPay / ธนาคาร</span>
+              <p className="text-sm font-black text-indigo-600 tracking-wider">08X-XXX-XXXX</p>
+              <p className="text-[11px] font-bold text-slate-600">ชื่อบัญชี: นายผู้พัฒนา ซัพพอร์ตดี</p>
+            </div>
+
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText('08XXXXXXXX');
+                alert('คัดลอกหมายเลขแล้ว ขอบคุณสำหรับทุกๆ การสนับสนุนครับ!');
+              }}
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition"
+            >
+              <Copy size={14} /> คัดลอกเลขบัญชี
+            </button>
+          </div>
+        </div>
+      )}
+
+      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-3xl px-4 py-2 shadow-xl flex items-center gap-4 md:gap-8 z-40">
+        <button 
+          onClick={() => setActiveTab('dashboard')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition ${activeTab === 'dashboard' ? 'text-indigo-600 font-bold' : 'text-slate-400 hover:text-slate-600'}`}
+        >
+          <LayoutDashboard size={20} />
+          <span className="text-[10px]">หน้าหลัก</span>
+        </button>
+
+        <button 
+          onClick={() => setActiveTab('schedule')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition ${activeTab === 'schedule' ? 'text-indigo-600 font-bold' : 'text-slate-400 hover:text-slate-600'}`}
+        >
+          <CalendarDays size={20} />
+          <span className="text-[10px]">ตารางอ่าน</span>
+        </button>
+
+        <button 
+          onClick={() => { resetForm(); setActiveTab('add'); }}
+          className="w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200 transition active:scale-95 mx-1"
+          title="เพิ่มวิชา"
+        >
+          <Plus size={24} />
+        </button>
+      </nav>
     </div>
   );
 }
