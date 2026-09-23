@@ -598,17 +598,17 @@ export default function StudyPlannerApp() {
           </div>
         )}
 
-        {/* หน้าเพิ่มวิชาใหม่ (Add Subject) - ปรับปรุงสไตล์เพื่อแก้ปัญหามือถือล้นขอบ */}
+        {/* หน้าเพิ่มวิชาใหม่ (Add Subject) - แก้ไขปัญหาการล้นขอบจอมือถืออย่างสมบูรณ์ */}
         {activeTab === 'add' && (
-          <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-3.5 animate-in fade-in max-w-xl mx-auto mb-10">
+          <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-4 animate-in fade-in max-w-xl mx-auto mb-10 overflow-hidden box-border">
             <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
               <h2 className="text-sm font-black text-slate-800">
                 {editingSubjectId ? 'แก้ไขข้อมูลวิชา' : 'เพิ่มวิชาใหม่เข้าตาราง'}
               </h2>
             </div>
 
-            <form onSubmit={handleSaveSubject} className="space-y-3">
-              <div>
+            <form onSubmit={handleSaveSubject} className="space-y-3.5 w-full">
+              <div className="w-full">
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">ชื่อวิชา</label>
                 <input 
                   type="text"
@@ -616,24 +616,24 @@ export default function StudyPlannerApp() {
                   value={formName}
                   onChange={e => setFormName(e.target.value)}
                   placeholder="เช่น แคลคูลัส 1"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-500 font-bold text-slate-800"
+                  className="w-full max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-indigo-500 font-bold text-slate-800"
                 />
               </div>
 
-              <div>
+              <div className="w-full">
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">ระดับความยาก</label>
                 <select 
                   value={formDifficulty}
                   onChange={e => setFormDifficulty(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none font-bold text-slate-700"
+                  className="w-full max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs outline-none font-bold text-slate-700"
                 >
-                  <option value="ง่าย">🟢 ง่าย</option>
-                  <option value="ปานกลาง">🟡 ปานกลาง</option>
-                  <option value="ยาก">🔴 ยาก</option>
+                  <option value="ง่าย">🟢ง่าย</option>
+                  <option value="ปานกลาง">🟡ปานกลาง</option>
+                  <option value="ยาก">🔴ยาก</option>
                 </select>
               </div>
 
-              <div>
+              <div className="w-full">
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">วันสอบ (ปฏิทิน)</label>
                 <input 
                   type="date"
@@ -641,24 +641,24 @@ export default function StudyPlannerApp() {
                   min={getTodayString()}
                   value={formExamDate}
                   onChange={e => setFormExamDate(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none font-bold text-slate-700"
+                  className="w-full max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs outline-none font-bold text-slate-700 appearance-none min-w-0"
                 />
               </div>
 
-              <div>
+              <div className="w-full">
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">จำนวนหัวข้อทั้งหมดที่จะอ่าน</label>
                 <input 
                   type="number"
                   min={1}
-                  max={20}
+                  max={100}
                   required
                   value={formTotalTopics}
                   onChange={e => setFormTotalTopics(Number(e.target.value))}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none font-bold text-slate-700"
+                  className="w-full max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs outline-none font-bold text-slate-700"
                 />
               </div>
 
-              <div className="pt-2 flex gap-2">
+              <div className="pt-2 flex gap-2 w-full">
                 <button 
                   type="button" 
                   onClick={() => { resetForm(); setActiveTab('dashboard'); }}
